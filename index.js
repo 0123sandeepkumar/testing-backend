@@ -1,6 +1,7 @@
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
+const path = require("path");
 
 //components
 import connect from "./database/connect.js";
@@ -12,7 +13,7 @@ const app = express();
 dotenv.config();
 app.use(cors(
   {
-    origin:[ process.env.FRONTEND_ORIGIN_URL ],
+    origin:[ process.env.FRONTEND_ORIGIN_URL , true ],
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true
   }
@@ -36,3 +37,11 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`[PASS] listening on port ${PORT}.`);
 });
+
+if (process.env.NODE_ENV == "production") {
+  app.use(express.static(path.join(__dirname, "/client/dist")));
+
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "client/dist", "index.html"));
+  });
+}
